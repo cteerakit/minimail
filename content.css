@@ -10,9 +10,8 @@ body.guc-floating-compose-mode .aic {
   display: none !important;
 }
 
-body.guc-floating-compose-mode div[role="dialog"][aria-label*="New Message"],
-body.guc-floating-compose-mode div[role="dialog"][aria-label*="Compose"] {
-  margin-right: 84px !important;
+body.guc-floating-compose-mode .jvV5Me {
+  margin-right: 48px !important;
 }
 
 #guc-floating-compose-button {
