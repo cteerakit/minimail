@@ -10,8 +10,7 @@
   },
   "permissions": ["storage"],
   "host_permissions": [
-    "https://mail.google.com/*",
-    "http://127.0.0.1:7879/*"
+    "https://mail.google.com/*"
   ],
   "background": {
     "service_worker": "background.js"

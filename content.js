@@ -83,55 +83,22 @@ let settingsPopover = null;
 let topRightLauncherButton = null;
 let topRightCollapseTimer = null;
 let globalDocumentClickBound = false;
-const DEBUG_ENDPOINT = "http://127.0.0.1:7879/ingest/b9abd529-5329-4eff-b0bd-dc85dcc88658";
-const DEBUG_SESSION_ID = "5d4471";
-const DEBUG_MODE_ENDPOINT = "http://127.0.0.1:7879/ingest/b9abd529-5329-4eff-b0bd-dc85dcc88658";
-const DEBUG_MODE_SESSION_ID = "d20741";
-
 function debugLog(hypothesisId, location, message, data = {}, runId = "initial") {
-  // #region agent log
-  const id = `log_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-  fetch(DEBUG_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Debug-Session-Id": DEBUG_SESSION_ID
-    },
-    body: JSON.stringify({
-      sessionId: DEBUG_SESSION_ID,
-      id,
-      runId,
-      hypothesisId,
-      location,
-      message,
-      data,
-      timestamp: Date.now()
-    })
-  }).catch(() => {});
-  // #endregion
+  // Keep signature stable; no-op in release builds.
+  void hypothesisId;
+  void location;
+  void message;
+  void data;
+  void runId;
 }
 
 function debugModeLog(hypothesisId, location, message, data = {}, runId = "investigate-1") {
-  const id = `log_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-  // #region agent log
-  fetch(DEBUG_MODE_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Debug-Session-Id": DEBUG_MODE_SESSION_ID
-    },
-    body: JSON.stringify({
-      sessionId: DEBUG_MODE_SESSION_ID,
-      id,
-      runId,
-      hypothesisId,
-      location,
-      message,
-      data,
-      timestamp: Date.now()
-    })
-  }).catch(() => {});
-  // #endregion
+  // Keep signature stable; no-op in release builds.
+  void hypothesisId;
+  void location;
+  void message;
+  void data;
+  void runId;
 }
 
 function normalizeSettings(settings) {
