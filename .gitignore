@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+
+# Build / package outputs
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime / temp files
+*.pid
+*.seed
+*.pid.lock
+*.tmp
+*.temp
+
+# IDE / editor files
+.vscode/
+.idea/
+*.code-workspace
+
+# Cursor local data
+.cursor/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

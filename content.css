@@ -1,0 +1,480 @@
+.guc-hidden {
+  display: none !important;
+}
+
+.guc-compose-hidden {
+  display: none !important;
+}
+
+body.guc-floating-compose-mode .aic {
+  display: none !important;
+}
+
+body.guc-floating-compose-mode div[role="dialog"][aria-label*="New Message"],
+body.guc-floating-compose-mode div[role="dialog"][aria-label*="Compose"] {
+  margin-right: 84px !important;
+}
+
+#guc-floating-compose-button {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  background: #fff;
+  color: #1a73e8;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 9999;
+}
+
+#guc-floating-compose-button:hover,
+#guc-floating-compose-button:focus-visible {
+  background: #f8f9fa;
+}
+
+#guc-floating-compose-button svg {
+  width: 24px;
+  height: 24px;
+  color: currentColor;
+  pointer-events: none;
+}
+
+#guc-floating-compose-button svg * {
+  fill: currentColor !important;
+  stroke: currentColor !important;
+  pointer-events: none;
+}
+
+body.guc-left-sidebar-hover-mode .guc-left-sidebar-fade-target {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+body.guc-left-sidebar-hover-mode .guc-left-sidebar-fade-target:hover,
+body.guc-left-sidebar-hover-mode .guc-left-sidebar-fade-target:focus-within {
+  opacity: 1;
+}
+
+body.guc-top-right-icons-collapsed-mode .guc-top-right-icon-collapsible {
+  opacity: 0;
+  transform: translateX(6px);
+  pointer-events: none;
+  transition: opacity 0.14s ease-in-out, transform 0.14s ease-in-out;
+}
+
+body.guc-top-right-icons-collapsed-mode.guc-top-right-icons-expanded .guc-top-right-icon-collapsible {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+#guc-top-right-launcher {
+  height: 32px;
+  width: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 4px;
+  padding: 0;
+  border: 1px solid #dadce0;
+  border-radius: 16px;
+  background: #fff;
+  color: #5f6368;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+#guc-top-right-launcher:hover,
+#guc-top-right-launcher:focus-visible {
+  background: #f1f3f4;
+}
+
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified input[aria-label="Search mail"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified input[aria-label*="Search in mail"] {
+  color: transparent;
+  caret-color: transparent;
+  transition: color 0.2s ease-in-out, caret-color 0.2s ease-in-out;
+}
+
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified {
+  max-width: 360px !important;
+  opacity: 0.5;
+  transition: max-width 0.2s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified input[aria-label="Search mail"]::placeholder,
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified input[aria-label*="Search in mail"]::placeholder {
+  color: transparent;
+  opacity: 0;
+  transition: color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified button[aria-label*="Search options"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified [aria-label*="Search options"][role="button"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified button[aria-label*="Advanced search"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified [aria-label*="Advanced search"][role="button"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified [data-tooltip*="Search options"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified [data-tooltip*="Advanced search"] {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
+}
+
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:hover input[aria-label="Search mail"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:hover input[aria-label*="Search in mail"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:focus-within input[aria-label="Search mail"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:focus-within input[aria-label*="Search in mail"] {
+  color: inherit;
+  caret-color: auto;
+}
+
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:hover,
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:focus-within {
+  max-width: 720px !important;
+  opacity: 1;
+}
+
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:hover input[aria-label="Search mail"]::placeholder,
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:hover input[aria-label*="Search in mail"]::placeholder,
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:focus-within input[aria-label="Search mail"]::placeholder,
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:focus-within input[aria-label*="Search in mail"]::placeholder {
+  color: inherit;
+  opacity: 1;
+}
+
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:hover button[aria-label*="Search options"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:hover [aria-label*="Search options"][role="button"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:hover button[aria-label*="Advanced search"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:hover [aria-label*="Advanced search"][role="button"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:hover [data-tooltip*="Search options"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:hover [data-tooltip*="Advanced search"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:focus-within button[aria-label*="Search options"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:focus-within [aria-label*="Search options"][role="button"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:focus-within button[aria-label*="Advanced search"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:focus-within [aria-label*="Advanced search"][role="button"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:focus-within [data-tooltip*="Search options"],
+body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:focus-within [data-tooltip*="Advanced search"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#guc-settings-anchor {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 4px;
+}
+
+#guc-settings-button {
+  height: 40px;
+  width: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 20px;
+  background: transparent;
+  color: #5f6368;
+  cursor: pointer;
+}
+
+#guc-settings-button:hover {
+  background: #f1f3f4;
+}
+
+#guc-settings-button svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+#guc-settings-popover {
+  --guc-bg: #ffffff;
+  --guc-fg: #0f172a;
+  --guc-muted: #64748b;
+  --guc-border: #e2e8f0;
+  --guc-accent: #2563eb;
+  --guc-accent-fg: #ffffff;
+  --guc-muted-bg: #f8fafc;
+  --guc-ring: rgba(37, 99, 235, 0.35);
+  position: absolute;
+  top: 44px;
+  right: 0;
+  z-index: 9999;
+  width: 380px;
+  padding: 16px;
+  border: 1px solid var(--guc-border);
+  border-radius: 14px;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.16);
+  background: var(--guc-bg);
+  color: var(--guc-fg);
+  font-family: Inter, "Google Sans", Roboto, Arial, sans-serif;
+}
+
+#guc-settings-popover.guc-hidden {
+  display: none !important;
+}
+
+.guc-title {
+  margin: 0 0 14px;
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.guc-section {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--guc-border);
+  border-radius: 12px;
+  background: var(--guc-muted-bg);
+}
+
+.guc-section-title {
+  margin: 0 0 10px;
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--guc-muted);
+}
+
+.guc-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+label.guc-field {
+  cursor: pointer;
+}
+
+label.guc-field:has(.guc-switch input:disabled) {
+  cursor: not-allowed;
+}
+
+.guc-label-text {
+  font-size: inherit;
+}
+
+.guc-switch {
+  position: relative;
+  display: inline-flex;
+  width: 40px;
+  height: 24px;
+  flex: 0 0 40px;
+}
+
+.guc-switch input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.guc-switch input:disabled {
+  cursor: not-allowed;
+}
+
+.guc-switch-track {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: #2563eb;
+  border: 1px solid #2563eb;
+  box-sizing: border-box;
+  position: relative;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.guc-switch input:disabled + .guc-switch-track {
+  opacity: 0.5;
+}
+
+.guc-switch-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--guc-accent-fg);
+  box-sizing: border-box;
+  transition: transform 0.2s ease;
+}
+
+.guc-switch input:not(:checked) + .guc-switch-track {
+  background: #cbd5e1;
+  border-color: #cbd5e1;
+}
+
+.guc-switch input:not(:checked) + .guc-switch-track::after {
+  transform: translateX(-16px);
+}
+
+.guc-switch input:focus-visible + .guc-switch-track {
+  box-shadow: 0 0 0 3px var(--guc-ring);
+}
+
+.guc-field-width {
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 0;
+}
+
+.guc-width-label {
+  font-size: 14px;
+  color: var(--guc-fg);
+  flex: 0 0 auto;
+}
+
+.guc-segmented {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  flex: 0 1 292px;
+  width: 292px;
+  max-width: 100%;
+  min-width: 0;
+  border: 1px solid var(--guc-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--guc-muted-bg);
+  box-sizing: border-box;
+}
+
+.guc-segment {
+  position: relative;
+  display: block;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.guc-segment + .guc-segment {
+  border-left: 1px solid var(--guc-border);
+}
+
+.guc-segment input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.guc-segment span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  padding: 8px 6px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--guc-muted);
+  background: transparent;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.guc-segment input:checked + span {
+  background: var(--guc-accent);
+  color: var(--guc-accent-fg);
+}
+
+.guc-segment input:focus-visible + span {
+  box-shadow: inset 0 0 0 2px var(--guc-ring);
+}
+
+.guc-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0;
+}
+
+.guc-actions button {
+  border: 1px solid var(--guc-border);
+  border-radius: 10px;
+  background: var(--guc-bg);
+  color: var(--guc-fg);
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.2;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.guc-actions button:hover {
+  background: var(--guc-muted-bg);
+}
+
+.guc-actions button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--guc-ring);
+}
+
+#guc-donate-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--guc-border);
+  border-radius: 10px;
+  background: var(--guc-bg);
+  color: var(--guc-fg);
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.2;
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+#guc-donate-button:hover {
+  background: var(--guc-muted-bg);
+}
+
+#guc-donate-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--guc-ring);
+}
+
+.guc-status {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: #188038;
+}
+
+.guc-status:empty {
+  display: none;
+}
