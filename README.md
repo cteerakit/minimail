@@ -47,3 +47,19 @@ A Chrome Manifest V3 extension that customizes Gmail by hiding selected UI eleme
 - Reload Gmail: saved settings are restored.
 - Popover button stays present near the top-right help area.
 - Restore defaults in popover: all default hide toggles reapply.
+
+## Privacy Policy (GitHub Pages)
+
+This repo includes a GitHub Pages-ready privacy policy site in `docs/`.
+
+To publish it:
+
+1. Push this repository to GitHub.
+2. In GitHub, open **Settings** -> **Pages**.
+3. Set **Source** to **Deploy from a branch**.
+4. Select branch **main** and folder **/docs**.
+5. Save and wait for deployment.
+
+Your policy page will be available at:
+
+- `https://<your-github-username>.github.io/<repo-name>/privacy-policy`
