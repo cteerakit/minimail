@@ -3,9 +3,9 @@ const DEFAULT_SETTINGS = {
   hideAddonSidebar: true,
   hideFooter: true,
   hideSearchBar: false,
-  floatingComposeButton: false,
+  floatingComposeButton: true,
   minifySearchBar: true,
-  collapseTopRightIcons: false,
+  collapseTopRightIcons: true,
   hideLeftSidebarOnHover: false,
   centerSearchBar: true,
   mailListWidthPreset: "small",
@@ -66,6 +66,11 @@ const FLOATING_COMPOSE_ICON_SVG = `
     <path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"></path>
   </svg>
 `;
+const TOP_RIGHT_LAUNCHER_ICON_SVG = `
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true" focusable="false">
+    <path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"></path>
+  </svg>
+`;
 
 const managedElements = new Set();
 const managedWidthElements = new Set();
@@ -81,7 +86,6 @@ let uiObserver = null;
 let settingsButton = null;
 let settingsPopover = null;
 let topRightLauncherButton = null;
-let topRightCollapseTimer = null;
 let globalDocumentClickBound = false;
 function debugLog(hypothesisId, location, message, data = {}, runId = "initial") {
   // Keep signature stable; no-op in release builds.
@@ -208,10 +212,6 @@ function clearManagedLeftSidebarElements() {
 function clearManagedTopRightIconElements() {
   document.body?.classList.remove("guc-top-right-icons-collapsed-mode");
   document.body?.classList.remove("guc-top-right-icons-expanded");
-  if (topRightCollapseTimer) {
-    clearTimeout(topRightCollapseTimer);
-    topRightCollapseTimer = null;
-  }
   for (const element of managedTopRightIconElements) {
     element.classList.remove("guc-top-right-icon-collapsible");
   }
@@ -240,32 +240,26 @@ function setTopRightExpanded(expanded) {
   }
 }
 
-function scheduleTopRightCollapse() {
-  if (topRightCollapseTimer) {
-    clearTimeout(topRightCollapseTimer);
-  }
-  topRightCollapseTimer = setTimeout(() => {
-    topRightCollapseTimer = null;
-    setTopRightExpanded(false);
-  }, 180);
-}
-
-function bindTopRightHoverHandlers(element) {
-  if (!(element instanceof HTMLElement) || element.dataset.gucTopRightBound === "1") {
+function toggleTopRightExpanded() {
+  if (!document.body) {
     return;
   }
-  element.addEventListener("mouseenter", () => {
-    if (topRightCollapseTimer) {
-      clearTimeout(topRightCollapseTimer);
-      topRightCollapseTimer = null;
-    }
-    setTopRightExpanded(true);
-  });
-  element.addEventListener("mouseleave", () => {
-    scheduleTopRightCollapse();
-  });
-  element.dataset.gucTopRightBound = "1";
+  const isExpanded = document.body.classList.contains("guc-top-right-icons-expanded");
+  setTopRightExpanded(!isExpanded);
 }
+
+function bindTopRightLauncherClick(launcher) {
+  if (!(launcher instanceof HTMLElement) || launcher.dataset.gucTopRightBound === "1") {
+    return;
+  }
+  launcher.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    toggleTopRightExpanded();
+  });
+  launcher.dataset.gucTopRightBound = "1";
+}
+
 
 function centerSearchBar() {
   const targets = Array.from(document.querySelectorAll("form[role='search']"))
@@ -355,7 +349,19 @@ function applyCustomizations(settings) {
     clearManagedSearchBarElements();
     clearManagedComposeButtonElements();
     clearManagedLeftSidebarElements();
-    clearManagedTopRightIconElements();
+    if (settings.collapseTopRightIcons) {
+      // Avoid tearing down the collapse state on every Gmail DOM mutation
+      // (would cause flicker and would also clobber the in-progress hover/focus
+      // expand state). Just drop references to elements no longer in the DOM
+      // so the managed set doesn't grow without bound.
+      for (const element of [...managedTopRightIconElements]) {
+        if (!element.isConnected) {
+          managedTopRightIconElements.delete(element);
+        }
+      }
+    } else {
+      clearManagedTopRightIconElements();
+    }
     debugLog("H1", "content.js:128", "Applying customization settings", {
       hideAddonSidebar: Boolean(settings.hideAddonSidebar),
       hideLogo: Boolean(settings.hideLogo),
@@ -598,6 +604,165 @@ function applyLeftSidebarHoverMode() {
   }
 }
 
+// Walk up from an icon's clickable node to the smallest enclosing wrapper
+// that's still icon-sized. This is what we need to actually hide so that
+// decorative wrappers (e.g. the Gemini gradient ring sitting on the parent
+// <div>, not on the <a>) get collapsed too. We stop walking up when the
+// parent gets noticeably larger than the icon (it's a row/group, not a
+// single-icon wrapper) or when it would swallow our own managed elements
+// (launcher, settings anchor) — we must never let those get the hide class.
+function findTopRightIconWrapper(clickableNode) {
+  if (!(clickableNode instanceof HTMLElement)) {
+    return null;
+  }
+  // If the icon has already been tagged as collapsible (and therefore is
+  // currently display:none, with rect 0×0), short-circuit and return the
+  // tagged ancestor. Walking up via getBoundingClientRect is hopeless once
+  // the chain is hidden — every ancestor up to the visible row reports 0×0.
+  const taggedAncestor = clickableNode.closest(".guc-top-right-icon-collapsible");
+  if (taggedAncestor instanceof HTMLElement) {
+    return taggedAncestor;
+  }
+  const clickableRect = clickableNode.getBoundingClientRect();
+  if (clickableRect.width === 0 || clickableRect.height === 0) {
+    return clickableNode;
+  }
+  let current = clickableNode;
+  let depth = 0;
+  while (current.parentElement && depth < 3) {
+    const parent = current.parentElement;
+    const parentRect = parent.getBoundingClientRect();
+    if (
+      parentRect.width > clickableRect.width * 1.6 ||
+      parentRect.height > clickableRect.height * 1.8
+    ) {
+      break;
+    }
+    if (
+      parent.id === "guc-top-right-launcher" ||
+      parent.id === "guc-settings-anchor" ||
+      (topRightLauncherButton instanceof HTMLElement && parent.contains(topRightLauncherButton)) ||
+      parent.querySelector("#guc-settings-anchor")
+    ) {
+      break;
+    }
+    current = parent;
+    depth += 1;
+  }
+  return current;
+}
+
+// Make sure the launcher isn't accidentally living inside a collapsed wrapper
+// (which would inherit display:none from its parent). Hoist it out as a
+// sibling of that wrapper if so.
+function rescueLauncherFromCollapsedParent(launcher) {
+  if (!(launcher instanceof HTMLElement)) {
+    return;
+  }
+  const collapsedAncestor = launcher.parentElement?.closest?.(".guc-top-right-icon-collapsible");
+  if (collapsedAncestor instanceof HTMLElement) {
+    collapsedAncestor.insertAdjacentElement("beforebegin", launcher);
+  }
+}
+
+// Returns every wrapper element that we manage (Help, Settings, Gemini, Google
+// apps), regardless of current collapsed state. Used to anchor the launcher
+// at the left edge of the row instead of relying on whichever button happens
+// to match aria-label="Help" (Gmail's Settings button often advertises a
+// label like "Quick settings, Help & Feedback" which would otherwise pull
+// the launcher into the middle of the row).
+function findManagedTopRightIconWrappers() {
+  const iconSelectors = [
+    "a[aria-label*='Help']",
+    "button[aria-label*='Help']",
+    "a[aria-label*='Support']",
+    "button[aria-label*='Support']",
+    "a[aria-label*='Settings']",
+    "button[aria-label*='Settings']",
+    "a[aria-label*='Gemini']",
+    "button[aria-label*='Gemini']",
+    "a[aria-label*='Google apps']",
+    "button[aria-label*='Google apps']"
+  ];
+  const wrappers = new Set();
+  for (const selector of iconSelectors) {
+    for (const node of document.querySelectorAll(selector)) {
+      if (!(node instanceof HTMLElement) || !node.isConnected) {
+        continue;
+      }
+      if (
+        node.id === "guc-top-right-launcher" ||
+        node.id === "guc-settings-button" ||
+        node.closest("#guc-top-right-launcher") ||
+        node.closest("#guc-settings-anchor")
+      ) {
+        continue;
+      }
+      const clickable = node.closest("button, a, [role='button']") || node;
+      if (!(clickable instanceof HTMLElement)) {
+        continue;
+      }
+      const wrapper = findTopRightIconWrapper(clickable);
+      if (wrapper instanceof HTMLElement) {
+        wrappers.add(wrapper);
+      }
+    }
+  }
+  return Array.from(wrappers);
+}
+
+// Pick the wrapper that should sit immediately to the right of the launcher.
+// We prefer the visually leftmost wrapper (smallest left offset) so the
+// launcher is always at the start of our managed icon group. When all
+// wrappers are collapsed (rect = 0), fall back to DOM order, which matches
+// visual order in LTR Gmail.
+function findLeftmostManagedIconWrapper() {
+  const wrappers = findManagedTopRightIconWrappers();
+  if (wrappers.length === 0) {
+    return null;
+  }
+  let leftmost = null;
+  let leftmostX = Number.POSITIVE_INFINITY;
+  for (const wrapper of wrappers) {
+    const rect = wrapper.getBoundingClientRect();
+    if (rect.width > 0 && rect.left < leftmostX) {
+      leftmost = wrapper;
+      leftmostX = rect.left;
+    }
+  }
+  if (leftmost) {
+    return leftmost;
+  }
+  wrappers.sort((a, b) => {
+    const pos = a.compareDocumentPosition(b);
+    if (pos & Node.DOCUMENT_POSITION_FOLLOWING) {
+      return -1;
+    }
+    if (pos & Node.DOCUMENT_POSITION_PRECEDING) {
+      return 1;
+    }
+    return 0;
+  });
+  return wrappers[0];
+}
+
+// Position the launcher directly before the leftmost managed icon wrapper.
+// Idempotent: skips DOM work if it's already in the right slot.
+function positionTopRightLauncher(launcher) {
+  if (!(launcher instanceof HTMLElement)) {
+    return false;
+  }
+  const anchor = findLeftmostManagedIconWrapper();
+  if (!(anchor instanceof HTMLElement) || anchor === launcher) {
+    return false;
+  }
+  if (anchor.previousElementSibling === launcher) {
+    return true;
+  }
+  anchor.insertAdjacentElement("beforebegin", launcher);
+  return true;
+}
+
 function findTopRightIconTargets() {
   const targets = new Set();
   const iconSelectors = [
@@ -641,7 +806,21 @@ function findTopRightIconTargets() {
       if (rect.top > 140 || rect.left < (window.innerWidth || 0) * 0.55) {
         continue;
       }
-      targets.add(clickableNode);
+      const wrapper = findTopRightIconWrapper(clickableNode) || clickableNode;
+      // Defensive: never let a wrapper that contains the launcher or our
+      // settings anchor get tagged as collapsible — that would hide them.
+      if (
+        topRightLauncherButton instanceof HTMLElement &&
+        wrapper.contains(topRightLauncherButton)
+      ) {
+        targets.add(clickableNode);
+        continue;
+      }
+      if (wrapper.querySelector?.("#guc-settings-anchor")) {
+        targets.add(clickableNode);
+        continue;
+      }
+      targets.add(wrapper);
     }
   }
 
@@ -652,19 +831,33 @@ function applyTopRightIconCollapseMode() {
   if (topRightLauncherButton instanceof HTMLElement) {
     topRightLauncherButton.classList.remove("guc-hidden");
   }
-  const targets = findTopRightIconTargets();
-  if (targets.length === 0) {
+  const body = document.body;
+  if (!body) {
     return;
   }
-  document.body?.classList.add("guc-top-right-icons-collapsed-mode");
-  setTopRightExpanded(false);
+  const targets = findTopRightIconTargets();
+  // Nothing to manage yet and we haven't tagged anything previously: bail out
+  // without touching body classes so we don't strand a collapsed-mode state.
+  if (targets.length === 0 && managedTopRightIconElements.size === 0) {
+    return;
+  }
+  // Only initialize collapse state when transitioning into collapsed mode.
+  // Re-runs (triggered by Gmail DOM mutations) must preserve any in-progress
+  // expanded state set by an explicit launcher click, otherwise icons would
+  // snap shut while the user is interacting with them.
+  const wasAlreadyCollapsed = body.classList.contains("guc-top-right-icons-collapsed-mode");
+  body.classList.add("guc-top-right-icons-collapsed-mode");
+  if (!wasAlreadyCollapsed) {
+    setTopRightExpanded(false);
+  }
   for (const target of targets) {
     target.classList.add("guc-top-right-icon-collapsible");
     managedTopRightIconElements.add(target);
-    bindTopRightHoverHandlers(target);
   }
   if (topRightLauncherButton) {
-    bindTopRightHoverHandlers(topRightLauncherButton);
+    bindTopRightLauncherClick(topRightLauncherButton);
+    rescueLauncherFromCollapsedParent(topRightLauncherButton);
+    positionTopRightLauncher(topRightLauncherButton);
   }
 }
 
@@ -1095,8 +1288,12 @@ async function saveAndApplyPopoverSettings() {
 
 async function restorePopoverDefaults() {
   try {
-    await chrome.storage.sync.set(DEFAULT_SETTINGS);
-    latestSettings = { ...DEFAULT_SETTINGS };
+    const restoredSettings = normalizeSettings({
+      ...DEFAULT_SETTINGS,
+      floatingComposeButton: true
+    });
+    await chrome.storage.sync.set(restoredSettings);
+    latestSettings = restoredSettings;
     fillPopover(latestSettings);
     applyCustomizations(latestSettings);
     setPopoverStatus("");
@@ -1156,6 +1353,13 @@ function buildSettingsPopover() {
         </span>
         <span class="guc-label-text">Use floating compose button</span>
       </label>
+      <label class="guc-field">
+        <span class="guc-switch">
+          <input id="guc-collapseTopRightIcons" type="checkbox" />
+          <span class="guc-switch-track" aria-hidden="true"></span>
+        </span>
+        <span class="guc-label-text">Collapse top-right utility icons</span>
+      </label>
     </section>
     <section class="guc-section">
       <h4 class="guc-section-title">Search Bar</h4>
@@ -1207,13 +1411,6 @@ function buildSettingsPopover() {
     </section>
     <section class="guc-section">
       <h4 class="guc-section-title">Experimental</h4>
-      <label class="guc-field">
-        <span class="guc-switch">
-          <input id="guc-collapseTopRightIcons" type="checkbox" />
-          <span class="guc-switch-track" aria-hidden="true"></span>
-        </span>
-        <span class="guc-label-text">Collapse top-right utility icons</span>
-      </label>
       <label class="guc-field">
         <span class="guc-switch">
           <input id="guc-hideLeftSidebarOnHover" type="checkbox" />
@@ -1349,7 +1546,9 @@ function ensureTopRightLauncher(helpButton) {
   const existingLauncher = document.getElementById("guc-top-right-launcher");
   if (existingLauncher instanceof HTMLElement) {
     topRightLauncherButton = existingLauncher;
-    bindTopRightHoverHandlers(topRightLauncherButton);
+    bindTopRightLauncherClick(topRightLauncherButton);
+    rescueLauncherFromCollapsedParent(topRightLauncherButton);
+    positionTopRightLauncher(topRightLauncherButton);
     if (latestSettings.collapseTopRightIcons) {
       topRightLauncherButton.classList.remove("guc-hidden");
     } else {
@@ -1363,22 +1562,30 @@ function ensureTopRightLauncher(helpButton) {
   launcher.type = "button";
   launcher.setAttribute("aria-label", "Show top-right buttons");
   launcher.setAttribute("title", "Show top-right buttons");
-  launcher.textContent = "✓";
+  launcher.innerHTML = TOP_RIGHT_LAUNCHER_ICON_SVG;
   launcher.classList.add("guc-hidden");
-  bindTopRightHoverHandlers(launcher);
+  bindTopRightLauncherClick(launcher);
   topRightLauncherButton = launcher;
-  if (helpButton instanceof HTMLElement) {
-    helpButton.insertAdjacentElement("beforebegin", launcher);
-  } else {
-    const fallbackAnchor = document.querySelector(
-      "a[aria-label*='Help'], button[aria-label*='Help'], a[aria-label*='Settings'], button[aria-label*='Settings'], a[aria-label*='Gemini'], button[aria-label*='Gemini']"
-    );
-    if (fallbackAnchor instanceof HTMLElement) {
-      fallbackAnchor.insertAdjacentElement("beforebegin", launcher);
+  // Prefer position-based placement: just before the leftmost managed icon
+  // wrapper. This makes us robust to Gmail labelling Settings as e.g.
+  // "Quick settings, Help & Feedback", which would otherwise pull our anchor
+  // into the middle of the row.
+  if (!positionTopRightLauncher(launcher)) {
+    if (helpButton instanceof HTMLElement) {
+      const helpWrapper = findTopRightIconWrapper(helpButton) || helpButton;
+      helpWrapper.insertAdjacentElement("beforebegin", launcher);
     } else {
-      const fallbackContainer = document.querySelector("header, div[role='banner'], div[gh='mtb']");
-      if (fallbackContainer instanceof HTMLElement) {
-        fallbackContainer.appendChild(launcher);
+      const fallbackAnchor = document.querySelector(
+        "a[aria-label*='Help'], button[aria-label*='Help'], a[aria-label*='Settings'], button[aria-label*='Settings'], a[aria-label*='Gemini'], button[aria-label*='Gemini']"
+      );
+      if (fallbackAnchor instanceof HTMLElement) {
+        const fallbackWrapper = findTopRightIconWrapper(fallbackAnchor) || fallbackAnchor;
+        fallbackWrapper.insertAdjacentElement("beforebegin", launcher);
+      } else {
+        const fallbackContainer = document.querySelector("header, div[role='banner'], div[gh='mtb']");
+        if (fallbackContainer instanceof HTMLElement) {
+          fallbackContainer.appendChild(launcher);
+        }
       }
     }
   }

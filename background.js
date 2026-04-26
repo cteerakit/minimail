@@ -3,7 +3,7 @@ const DEFAULT_SETTINGS = {
   hideAddonSidebar: true,
   hideFooter: true,
   hideSearchBar: false,
-  floatingComposeButton: false,
+  floatingComposeButton: true,
   minifySearchBar: true,
   collapseTopRightIcons: true,
   hideLeftSidebarOnHover: false,

@@ -63,39 +63,44 @@ body.guc-left-sidebar-hover-mode .guc-left-sidebar-fade-target:focus-within {
   opacity: 1;
 }
 
-body.guc-top-right-icons-collapsed-mode .guc-top-right-icon-collapsible {
-  opacity: 0;
-  transform: translateX(6px);
-  pointer-events: none;
-  transition: opacity 0.14s ease-in-out, transform 0.14s ease-in-out;
-}
-
-body.guc-top-right-icons-collapsed-mode.guc-top-right-icons-expanded .guc-top-right-icon-collapsible {
-  opacity: 1;
-  transform: translateX(0);
-  pointer-events: auto;
+body.guc-top-right-icons-collapsed-mode:not(.guc-top-right-icons-expanded) .guc-top-right-icon-collapsible {
+  display: none !important;
 }
 
 #guc-top-right-launcher {
-  height: 32px;
-  width: 32px;
+  height: 40px;
+  width: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-right: 4px;
+  margin: 0 4px;
   padding: 0;
-  border: 1px solid #dadce0;
-  border-radius: 16px;
-  background: #fff;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
   color: #5f6368;
   cursor: pointer;
-  font-size: 14px;
   line-height: 1;
+  vertical-align: middle;
+  flex: 0 0 auto;
 }
 
 #guc-top-right-launcher:hover,
 #guc-top-right-launcher:focus-visible {
   background: #f1f3f4;
+  outline: none;
+}
+
+#guc-top-right-launcher svg {
+  width: 26px;
+  height: 26px;
+  display: block;
+  pointer-events: none;
+  transition: transform 0.18s ease-in-out;
+}
+
+body.guc-top-right-icons-collapsed-mode.guc-top-right-icons-expanded #guc-top-right-launcher svg {
+  transform: rotate(180deg);
 }
 
 body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified input[aria-label="Search mail"],
@@ -196,6 +201,13 @@ body.guc-minify-search-bar-mode form[role="search"].guc-search-bar-minified:focu
   width: 20px;
   height: 20px;
   display: block;
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+}
+
+#guc-settings-button:hover svg,
+#guc-settings-button:focus-visible svg {
+  opacity: 1;
 }
 
 #guc-settings-popover {
